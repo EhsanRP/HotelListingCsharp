@@ -3,7 +3,6 @@ using AutoMapper.QueryableExtensions;
 using HotelListing.Constants;
 using HotelListing.Data;
 using HotelListing.DTOs.Country;
-using HotelListing.DTOs.Hotel;
 using HotelListing.Results;
 using Microsoft.EntityFrameworkCore;
 

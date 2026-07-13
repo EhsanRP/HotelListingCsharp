@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace HotelListing.DTOs.Hotel;
+﻿namespace HotelListing.DTOs.Hotel;
 
 public record GetHotelDto(
     int Id,

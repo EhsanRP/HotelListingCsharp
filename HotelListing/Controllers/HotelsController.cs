@@ -1,10 +1,7 @@
 using HotelListing.Data;
 using HotelListing.DTOs.Hotel;
-using HotelListing.Results;
 using HotelListing.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Controllers;
 
