@@ -1,7 +1,7 @@
 ﻿using HotelListing.DTOs.Hotel;
 using HotelListing.Results;
 
-namespace HotelListing.Services;
+namespace HotelListing.Interfaces;
 
 public interface IHotelsService
 {
