@@ -3,12 +3,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Data;
 
-public class HotelListingDbContext : IdentityDbContext<ApplicationUser>
+public class HotelListingDbContext(DbContextOptions<HotelListingDbContext> options)
+    : IdentityDbContext<ApplicationUser>(options)
 {
-    public HotelListingDbContext(DbContextOptions<HotelListingDbContext> options) : base(options)
-    {
-    }
-
     public DbSet<Hotel> Hotels { get; set; }
     public DbSet<Country> Countries { get; set; }
+    public DbSet<ApiKey> ApiKeys { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ApiKey>(builder =>
+        {
+            builder.HasIndex(k => k.Key).IsUnique();
+        });
+    }
 }
