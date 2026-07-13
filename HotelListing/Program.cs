@@ -1,8 +1,11 @@
 using System.Text.Json.Serialization;
+using HotelListing.Constants;
 using HotelListing.Data;
+using HotelListing.Handlers;
 using HotelListing.Interfaces;
 using HotelListing.MappingProfiles;
 using HotelListing.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +17,12 @@ builder.Services.AddDbContext<HotelListingDbContext>(options => options.UseNpgsq
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddEntityFrameworkStores<HotelListingDbContext>();
 
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = AuthenticationDefaults.BasicSheme;
+        options.DefaultChallengeScheme = AuthenticationDefaults.BasicSheme;
+    })
+    .AddScheme<AuthenticationSchemeOptions,BasicAuthenticationHandler>(AuthenticationDefaults.BasicSheme, _ => {});
 builder.Services.AddAuthorization();
 
 // builder.Services.AddIdentityCore<ApplicationUser>()

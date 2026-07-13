@@ -1,6 +1,5 @@
 using HotelListing.DTOs.Auth;
 using HotelListing.Interfaces;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

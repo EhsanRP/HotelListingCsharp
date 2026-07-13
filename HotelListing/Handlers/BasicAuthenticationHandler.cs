@@ -1,0 +1,80 @@
+﻿using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
+using HotelListing.Data;
+using HotelListing.DTOs.Auth;
+using HotelListing.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
+
+namespace HotelListing.Handlers;
+
+public class BasicAuthenticationHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    IUsersService usersService)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        if (!Request.Headers.TryGetValue("Authorization", out var authHeaderValues))
+        {
+            return AuthenticateResult.NoResult();
+        }
+
+        var authHeader = authHeaderValues.ToString();
+        if (string.IsNullOrWhiteSpace(authHeader) ||
+            !authHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+        {
+            return AuthenticateResult.NoResult();
+        }
+
+        var token = authHeader["Basic ".Length..].Trim();
+        string decoded;
+
+        try
+        {
+            var credentialBytes = Convert.FromBase64String(token);
+            decoded = Encoding.UTF8.GetString(credentialBytes);
+        }
+        catch
+        {
+            return AuthenticateResult.Fail("Invalid Basic Authentication Token");
+        }
+
+        var separatorIndex = decoded.IndexOf(':');
+        if (separatorIndex <= 0)
+        {
+            return AuthenticateResult.Fail("Invalid Basic Authentication Credentials Format");
+        }
+
+        var usernameOrEmail = decoded[..separatorIndex];
+        var password = decoded[(separatorIndex + 1)..];
+
+        var loginDto = new LoginUserDto
+        {
+            Email = usernameOrEmail,
+            Password = password
+        };
+
+        var result = await usersService.LoginAsync(loginDto);
+
+        if (!result.IsSuccess)
+        {
+            return AuthenticateResult.Fail("Invalid Username Or Password");
+        }
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, usernameOrEmail),
+        };
+        var identity = new ClaimsIdentity(claims, Scheme.Name);
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, Scheme.Name); 
+
+        return AuthenticateResult.Success(ticket);
+    }
+}
