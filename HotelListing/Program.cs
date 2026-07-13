@@ -19,10 +19,10 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
 
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = AuthenticationDefaults.BasicSheme;
-        options.DefaultChallengeScheme = AuthenticationDefaults.BasicSheme;
+        options.DefaultAuthenticateScheme = AuthenticationDefaults.BasicScheme;
+        options.DefaultChallengeScheme = AuthenticationDefaults.BasicScheme;
     })
-    .AddScheme<AuthenticationSchemeOptions,BasicAuthenticationHandler>(AuthenticationDefaults.BasicSheme, _ => {});
+    .AddScheme<AuthenticationSchemeOptions,BasicAuthenticationHandler>(AuthenticationDefaults.BasicScheme, _ => {});
 builder.Services.AddAuthorization();
 
 // builder.Services.AddIdentityCore<ApplicationUser>()

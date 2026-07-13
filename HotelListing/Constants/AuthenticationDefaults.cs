@@ -2,6 +2,9 @@
 
 public class AuthenticationDefaults
 {
-    public const string BasicSheme = "Basic";
-    public const string Appname = "HotelListingApi";
+    public const string BasicScheme = "Basic";
+    public const string AppName = "HotelListingApi";
+    public const string ApiKeyScheme = "ApiKey";
+    public const string ApiKeyHeaderName = "X-Api-Key";
+
 }
