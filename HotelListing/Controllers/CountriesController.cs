@@ -1,6 +1,5 @@
 using HotelListing.DTOs.Country;
 using HotelListing.Interfaces;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers;
@@ -22,7 +21,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     public async Task<ActionResult<GetCountryDto>> GetCountry(int id)
     {
         var country = await countriesService.GetCountryAsync(id);
-        
+
         return ToActionResult(country);
     }
 
@@ -31,7 +30,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     [HttpPut("{id}")]
     public async Task<ActionResult<GetCountryDto>> PutCountry(int id, UpdateCountryDto countryDto)
     {
-        var updatedCountry = await countriesService.UpdateCountryAsync(id,countryDto);
+        var updatedCountry = await countriesService.UpdateCountryAsync(id, countryDto);
 
         return ToActionResult(updatedCountry);
     }
@@ -43,7 +42,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     {
         var result = await countriesService.CreateCountryAsync(countryDto);
         if (!result.IsSuccess) return MapErrorsToResponse(result.Errors);
-        
+
         return CreatedAtAction(nameof(GetCountry), new { id = result.Value!.Id }, result);
     }
 
@@ -54,5 +53,4 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
         var result = await countriesService.DeleteCountryAsync(id);
         return ToActionResult(result);
     }
-    
 }
