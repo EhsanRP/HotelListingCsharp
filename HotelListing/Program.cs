@@ -19,10 +19,11 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
 
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme = AuthenticationDefaults.BasicScheme;
-        options.DefaultChallengeScheme = AuthenticationDefaults.BasicScheme;
+        options.DefaultAuthenticateScheme = AuthenticationDefaults.ApiKeyScheme;
+        options.DefaultChallengeScheme = AuthenticationDefaults.ApiKeyScheme;
     })
-    .AddScheme<AuthenticationSchemeOptions,BasicAuthenticationHandler>(AuthenticationDefaults.BasicScheme, _ => {});
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(AuthenticationDefaults.BasicScheme, _ => { })
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(AuthenticationDefaults.ApiKeyScheme, _ => { });
 builder.Services.AddAuthorization();
 
 // builder.Services.AddIdentityCore<ApplicationUser>()
@@ -32,6 +33,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IHotelsService, HotelsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
 
 builder.Services.AddAutoMapper(config =>
 {

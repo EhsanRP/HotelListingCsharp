@@ -1,13 +1,10 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using HotelListing.Data;
 using HotelListing.DTOs.Auth;
 using HotelListing.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 
 namespace HotelListing.Handlers;
 
