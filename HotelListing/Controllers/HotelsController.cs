@@ -1,5 +1,6 @@
 using HotelListing.Data;
 using HotelListing.DTOs.Hotel;
+using HotelListing.Interfaces;
 using HotelListing.Services;
 using Microsoft.AspNetCore.Mvc;
 

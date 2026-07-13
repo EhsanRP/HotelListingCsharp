@@ -4,6 +4,7 @@ using HotelListing.Constants;
 using HotelListing.Data;
 using HotelListing.DTOs.Country;
 using HotelListing.DTOs.Hotel;
+using HotelListing.Interfaces;
 using HotelListing.Results;
 using Microsoft.EntityFrameworkCore;
 
