@@ -1,11 +1,22 @@
-﻿using HotelListing.Interfaces;
+﻿using HotelListing.Data;
+using HotelListing.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Services;
 
-public class ApiKeyValidatorService(IConfiguration configuration) : IApiKeyValidatorService
+public class ApiKeyValidatorService(HotelListingDbContext context) : IApiKeyValidatorService
 {
-    public Task<bool> IsValidAsync(string apiKey, CancellationToken cancellationToken = default)
+    public async Task<bool> IsValidAsync(string apiKey, CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(apiKey.Equals(configuration["ApiKey"]));
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            return false;
+        }
+
+        var apiKeyEntity = await context.ApiKeys
+            .AsNoTracking()
+            .FirstOrDefaultAsync(k => k.Key == apiKey, cancellationToken);
+
+        return apiKeyEntity is not null && apiKeyEntity.IsActive;
     }
 }
