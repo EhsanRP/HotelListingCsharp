@@ -1,7 +1,8 @@
+using System.Text.Json.Serialization;
 using HotelListing.Data;
+using HotelListing.Interfaces;
 using HotelListing.MappingProfiles;
 using HotelListing.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IHotelsService, HotelsService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 builder.Services.AddAutoMapper(config =>
 {
@@ -29,14 +31,14 @@ builder.Services.AddAutoMapper(config =>
 });
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-app.MapGroup("api/auth").MapIdentityApi<ApplicationUser>();
+app.MapGroup("api/defaultauth").MapIdentityApi<ApplicationUser>();
 
 
 // Configure the HTTP request pipeline.
