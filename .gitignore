@@ -1,0 +1,39 @@
+﻿# Build results
+[Bb]in/
+[Oo]bj/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# EF Core generated files
+*.db
+*.db-shm
+*.db-wal
+
+# Environment files
+.env
+appsettings.Development.json
+
+# Temporary files
+*.tmp
+*.temp

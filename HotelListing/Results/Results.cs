@@ -1,0 +1,54 @@
+﻿namespace HotelListing.Results;
+
+public readonly record struct Error(string Code, string Description)
+{
+    public static Error None = new("", "");
+    public bool IsNone => string.IsNullOrWhiteSpace(Code);
+}
+
+public readonly record struct Result
+{
+    public bool IsSuccess { get; }
+    public Error[] Errors { get; }
+
+    private Result(bool isSuccess, Error[] errors)
+    {
+        (IsSuccess, Errors) = (isSuccess, errors);
+    }
+
+    public static Result Success() => new(true, Array.Empty<Error>());
+    public static Result Failure(params Error[] errors) => new(false, errors);
+    public static Result BadRequest(params Error[] errors) => new(false, errors);
+    public static Result NotFound(params Error[] errors) => new(false, errors);
+
+    public static Result Combine(params Result[] results) => results.Any(result => !result.IsSuccess)
+        ? Failure(results.Where(result => !result.IsSuccess).SelectMany(result => result.Errors).ToArray())
+        : Success();
+}
+
+public readonly record struct Result<T>
+{
+    public bool IsSuccess { get; }
+    public Error[] Errors { get; }
+    public T? Value { get; }
+
+    private Result(bool isSuccess, T? value, Error[] errors)
+    {
+        (IsSuccess, Value, Errors) = (isSuccess, value, errors);
+    }
+
+    public static Result<T> Success(T value) => new(true, value, Array.Empty<Error>());
+    public static Result<T> Failure(params Error[] errors) => new(false, default, errors);
+
+    public static Result<T> NotFound(params Error[] errors) => new Result<T>(false, default, errors);
+    public static Result<T> BadRequest(params Error[] errors) => new Result<T>(false, default, errors);
+
+    public Result<K> Map<K>(Func<T, K> map)
+        => IsSuccess ? Result<K>.Success(map(Value!)) : Result<K>.Failure(Errors);
+
+    public Result<K> Bind<K>(Func<T, Result<K>> next)
+        => IsSuccess ? next(Value!) : Result<K>.Failure(Errors);
+
+    public Result<T> Ensure(Func<T, bool> predicate, Error error)
+        => IsSuccess && !predicate(Value!) ? Failure(error) : this;
+}

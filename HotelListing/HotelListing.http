@@ -1,0 +1,33 @@
+@HotelListing_HostAddress = http://localhost:5244
+@id=1
+
+###
+GET {{HotelListing_HostAddress}}/api/Hotels
+
+###
+POST {{HotelListing_HostAddress}}/api/Hotels
+Content-Type: application/json
+
+{
+  "id": 3,
+  "name": "Espinas Palace",
+  "address": "Tehran St.",
+  "rating": 4.1
+}
+
+###
+GET {{HotelListing_HostAddress}}/api/Hotels/{{id}}
+
+###
+PUT {{HotelListing_HostAddress}}/api/Hotels/{{id}}
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "Espinas Palace",
+  "address": "Tehran St.",
+  "rating": 4.1
+}
+
+###
+DELETE {{HotelListing_HostAddress}}/api/Hotels/{{id}}
