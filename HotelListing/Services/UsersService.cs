@@ -78,7 +78,12 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
         claims = claims.Union(roleClaims).ToList();
 
         //set JWT key credentials
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]));
+        var jwtKey = configuration["JwtSettings:Key"];
+        if (jwtKey == null)
+        {
+            throw new Exception("Some Programmer Fucked the AppSettings UP!");
+        }
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         //create encoded token
