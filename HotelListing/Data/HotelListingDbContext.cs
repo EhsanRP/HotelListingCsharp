@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Data;
@@ -17,5 +18,6 @@ public class HotelListingDbContext(DbContextOptions<HotelListingDbContext> optio
         {
             builder.HasIndex(k => k.Key).IsUnique();
         });
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }
