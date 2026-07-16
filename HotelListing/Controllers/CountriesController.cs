@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelListing.Controllers;
 
 [Route("api/[controller]")]
-[ApiController]
+[ApiController, Authorize]
 public class CountriesController(ICountriesService countriesService) : BaseApiController
 {
     // GET: api/Countries
-    [HttpGet, Authorize]
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<GetCountriesDto>>> GetCountries()
     {
         var countries = await countriesService.GetCountriesAsync();
@@ -29,6 +29,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     // PUT: api/Countries/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<GetCountryDto>> PutCountry(int id, UpdateCountryDto countryDto)
     {
         var updatedCountry = await countriesService.UpdateCountryAsync(id, countryDto);
@@ -39,6 +40,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     // POST: api/Countries
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<CreateCountryDto>> PostCountry(CreateCountryDto countryDto)
     {
         var result = await countriesService.CreateCountryAsync(countryDto);

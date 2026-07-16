@@ -29,6 +29,8 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
                 .ToArray();
             return Result<RegisteredUserDto>.Failure(errors);
         }
+        
+        await userManager.AddToRoleAsync(user, registerUserDto.Role);
 
         var registeredUser = new RegisteredUserDto
         {
@@ -36,7 +38,9 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Role = registerUserDto.Role
         };
+        
         return Result<RegisteredUserDto>.Success(registeredUser);
     }
 
