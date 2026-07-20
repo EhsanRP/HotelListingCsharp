@@ -1,14 +1,18 @@
-﻿using HotelListing.DTOs.Booking;
+﻿using HotelListing.Constants;
+using HotelListing.DTOs.Booking;
 using HotelListing.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers;
 
 [Route("api/hotels/{hotelId:int}/bookings")]
 [ApiController]
+[Authorize]
 public class HotelBookingsController(IBookingService bookingService) : BaseApiController
 {
     [HttpGet]
+    [Authorize(Roles = $"{UserRoles.HotelAdmin},{UserRoles.Administrator}")]
     public async Task<ActionResult<IEnumerable<GetBookingDto>>> GetBookings([FromRoute] int hotelId)
     {
         var bookings = await bookingService.GetBookingsForHotelAsync(hotelId);
@@ -59,6 +63,7 @@ public class HotelBookingsController(IBookingService bookingService) : BaseApiCo
     }
 
     [HttpPut("{bookingId:int}/admin/cancel")]
+    [Authorize(Roles = $"{UserRoles.HotelAdmin},{UserRoles.Administrator}")]
     public async Task<ActionResult<GetBookingDto>> AdminCancelBooking(
         [FromRoute] int hotelId,
         [FromRoute] int bookingId
@@ -67,8 +72,10 @@ public class HotelBookingsController(IBookingService bookingService) : BaseApiCo
         var result = await bookingService.AdminCancelBookingAsync(hotelId, bookingId);
         return ToActionResult(result);
     }
-    
+
     [HttpPut("{bookingId:int}/admin/confirm")]
+    [Authorize(Roles = $"{UserRoles.HotelAdmin},{UserRoles.Administrator}")]
+    
     public async Task<ActionResult<GetBookingDto>> AdminConfirmBooking(
         [FromRoute] int hotelId,
         [FromRoute] int bookingId

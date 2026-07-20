@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace HotelListing.Controllers;
 
 [Route("api/[controller]")]
-[ApiController, Authorize]
+[ApiController]
+[Authorize]
 public class CountriesController(ICountriesService countriesService) : BaseApiController
 {
     // GET: api/Countries
@@ -51,6 +52,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
 
     // DELETE: api/Countries/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> DeleteCountry(int id)
     {
         var result = await countriesService.DeleteCountryAsync(id);
