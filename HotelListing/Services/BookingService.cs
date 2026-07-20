@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HotelListing.Constants;
 using HotelListing.Data;
@@ -8,20 +7,17 @@ using HotelListing.DTOs.Booking;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;
 using HotelListing.Results;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Services;
 
 public class BookingService(
     HotelListingDbContext context,
-    UserManager<ApplicationUser> userManager,
-    IHttpContextAccessor httpContextAccessor,
     IMapper mapper,
     IUsersService usersService)
     : IBookingService
 {
-    public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAsync(int hotelId)
+    public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAdminAsync(int hotelId)
     {
         var userId = usersService.GetUserId;
         var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
@@ -39,6 +35,24 @@ public class BookingService(
 
         var bookings = await context.Bookings
             .Where(h => h.HotelId == hotelId)
+            .OrderBy(b => b.CheckIn)
+            .ProjectTo<GetBookingDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return Result<IEnumerable<GetBookingDto>>.Success(bookings);    }
+    public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAsync(int hotelId)
+    {
+        var userId = usersService.GetUserId;
+
+        var hotelExists = await HotelExists(hotelId);
+        if (!hotelExists.IsSuccess)
+        {
+            return Result<IEnumerable<GetBookingDto>>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.HotelNotFound(hotelId)));
+        }
+
+        var bookings = await context.Bookings
+            .Where(b => b.HotelId == hotelId && b.UserId == userId)
             .OrderBy(b => b.CheckIn)
             .ProjectTo<GetBookingDto>(mapper.ConfigurationProvider)
             .ToListAsync();
@@ -155,7 +169,6 @@ public class BookingService(
         var result = mapper.Map<GetBookingDto>(booking);
         return Result<GetBookingDto>.Success(result);
     }
-
 
     public async Task<Result<GetBookingDto>> CreateBookingAsync(int hotelId, CreateBookingDto createBookingDto)
     {
