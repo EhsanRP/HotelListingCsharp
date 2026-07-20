@@ -17,11 +17,19 @@ public class BookingService(
     HotelListingDbContext context,
     UserManager<ApplicationUser> userManager,
     IHttpContextAccessor httpContextAccessor,
-    IMapper mapper)
+    IMapper mapper,
+    IUsersService usersService)
     : IBookingService
 {
     public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAsync(int hotelId)
     {
+        var userId = usersService.GetUserId;
+        var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
+
+        if (!isHotelAdminUser)
+        {
+            return Result<IEnumerable<GetBookingDto>>.Failure(new Error(ErrorCodes.Forbid, ErrorDescriptions.AccessDenied()));
+        }
         var hotelExists = await HotelExists(hotelId);
         if (!hotelExists.IsSuccess)
         {
@@ -56,10 +64,7 @@ public class BookingService(
 
     public async Task<Result<GetBookingDto>> CancelBookingAsync(int hotelId, int bookingId)
     {
-        var userId = httpContextAccessor?
-            .HttpContext?
-            .User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = usersService.GetUserId;
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -92,10 +97,7 @@ public class BookingService(
 
     public async Task<Result<GetBookingDto>> AdminCancelBookingAsync(int hotelId, int bookingId)
     {
-        var userId = httpContextAccessor?
-            .HttpContext?
-            .User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = usersService.GetUserId;
         var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
 
         if (!isHotelAdminUser)
@@ -126,10 +128,7 @@ public class BookingService(
 
     public async Task<Result<GetBookingDto>> AdminConfirmBookingAsync(int hotelId, int bookingId)
     {
-        var userId = httpContextAccessor?
-            .HttpContext?
-            .User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = usersService.GetUserId;
         var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
 
         if (!isHotelAdminUser)
@@ -160,10 +159,7 @@ public class BookingService(
 
     public async Task<Result<GetBookingDto>> CreateBookingAsync(int hotelId, CreateBookingDto createBookingDto)
     {
-        var userId = httpContextAccessor?
-            .HttpContext?
-            .User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = usersService.GetUserId;
 
         if (string.IsNullOrEmpty(userId))
         {
@@ -230,6 +226,13 @@ public class BookingService(
     public async Task<Result<GetBookingDto>> UpdateBookingAsync(int hotelId, int bookingId,
         UpdateBookingDto updateBookingDto)
     {
+        var userId = usersService.GetUserId;
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation, ErrorDescriptions.LoginRequired()));
+        }
+        
         if (bookingId != updateBookingDto.Id)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
@@ -240,16 +243,6 @@ public class BookingService(
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
                 ErrorDescriptions.IdRouteValueMismatch()));
-        }
-
-        var userId = httpContextAccessor?
-            .HttpContext?
-            .User?
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation, ErrorDescriptions.LoginRequired()));
         }
 
         var nights = updateBookingDto.CheckOut.DayNumber - updateBookingDto.CheckIn.DayNumber;
@@ -301,7 +294,6 @@ public class BookingService(
         var result = mapper.Map<GetBookingDto>(booking);
         return Result<GetBookingDto>.Success(result);
     }
-
 
     private async Task<Result<GetHotelDto>> HotelExists(int hotelId)
     {

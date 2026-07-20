@@ -11,7 +11,10 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace HotelListing.Services;
 
-public class UsersService(UserManager<ApplicationUser> userManager, IConfiguration configuration) : IUsersService
+public class UsersService(
+    UserManager<ApplicationUser> userManager,
+    IConfiguration configuration,
+    IHttpContextAccessor httpContextAccessor) : IUsersService
 {
     public async Task<Result<RegisteredUserDto>> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
@@ -29,7 +32,7 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
                 .ToArray();
             return Result<RegisteredUserDto>.Failure(errors);
         }
-        
+
         await userManager.AddToRoleAsync(user, registerUserDto.Role);
 
         var registeredUser = new RegisteredUserDto
@@ -40,7 +43,7 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
             LastName = user.LastName,
             Role = registerUserDto.Role
         };
-        
+
         return Result<RegisteredUserDto>.Success(registeredUser);
     }
 
@@ -57,12 +60,17 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
         {
             return Result<string>.Failure(new Error(ErrorCodes.BadRequest, "Invalid password"));
         }
-        
+
         //issue a token
         var token = await GenerateToken(user);
 
         return Result<string>.Success(token);
     }
+    
+    public string GetUserId => httpContextAccessor?
+        .HttpContext?
+        .User?
+        .FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
     private async Task<string> GenerateToken(ApplicationUser user)
     {
@@ -87,6 +95,7 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
         {
             throw new Exception("Some Programmer Fucked the AppSettings UP!");
         }
+
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -99,10 +108,11 @@ public class UsersService(UserManager<ApplicationUser> userManager, IConfigurati
                 Convert.ToInt32(configuration["JwtSettings:DurationInMinutes"])
             ),
             signingCredentials: credentials
-                
         );
-        
+
         //return token value
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    
 }
