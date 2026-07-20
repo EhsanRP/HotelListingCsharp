@@ -2,7 +2,6 @@
 using System.Text.Encodings.Web;
 using HotelListing.Constants;
 using HotelListing.Interfaces;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 

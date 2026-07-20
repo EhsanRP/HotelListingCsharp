@@ -1,7 +1,5 @@
 ﻿using HotelListing.DTOs.Booking;
 using HotelListing.Interfaces;
-using HotelListing.Results;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers;
