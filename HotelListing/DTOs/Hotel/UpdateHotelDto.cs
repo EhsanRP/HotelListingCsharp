@@ -9,4 +9,5 @@ public class UpdateHotelDto
     [Required] public required string Address { get; set; }
     [Required] [Range(0, 5)] public double Rating { get; set; }
     [Required] public required int CountryId { get; set; }
+    [Required] public decimal PerNightRate { get; set; }
 }

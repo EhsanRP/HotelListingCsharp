@@ -1,0 +1,12 @@
+﻿namespace HotelListing.Data;
+
+public class HotelAdmin
+{
+    public int Id { get; set; }
+    
+    public required int HotelId { get; set; }
+    public Hotel? Hotel { get; set; }
+    
+    public required string UserId { get; set; } = string.Empty;
+    public ApplicationUser? User { get; set; }
+}

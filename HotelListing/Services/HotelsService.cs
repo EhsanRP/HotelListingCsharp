@@ -18,7 +18,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             .Include(h => h.Country)
             .ProjectTo<GetHotelsDto>(mapper.ConfigurationProvider)
             .ToListAsync();
-
+        
         return Result<IEnumerable<GetHotelsDto>>.Success(hotels);
     }
 
@@ -35,7 +35,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             if (id != updateHotelDto.Id)
             {
                 return Result<GetHotelDto>.BadRequest(new Error(ErrorCodes.Validation,
-                    "Id route value does not match payload Id"));
+                    ErrorDescriptions.IdRouteValueMismatch()));
             }
 
             var isHotelExist = await HotelExistsAsync(updateHotelDto.Id);
@@ -50,7 +50,8 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
                 var isCountryExit = await CountryExists(updateHotelDto.CountryId);
                 if (!isCountryExit.IsSuccess)
                 {
-                    return Result<GetHotelDto>.NotFound(new Error(ErrorCodes.NotFound, $"Country with Id= {id} not found"));
+                    return Result<GetHotelDto>.NotFound(new Error(ErrorCodes.NotFound,
+                        ErrorDescriptions.CountryNotFound(updateHotelDto.CountryId)));
                 }
             }
 
@@ -75,7 +76,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             if (!isCountryExit.IsSuccess)
             {
                 return Result<GetHotelDto>.NotFound(new Error(ErrorCodes.NotFound,
-                    $"Country with Id= {createHotelDto.CountryId} not found"));
+                    ErrorDescriptions.CountryNotFound(createHotelDto.CountryId)));
             }
 
             var hotel = mapper.Map<Hotel>(createHotelDto);
@@ -98,11 +99,11 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
         if (!hotelExists.IsSuccess)
         {
             return Result.Failure(new Error(ErrorCodes.NotFound,
-                $"Hotel with Id= {id} Not Found"));
+                ErrorDescriptions.HotelNotFound(id)));
         }
-        
+
         var hotel = mapper.Map<Hotel>(hotelExists);
-        
+
         context.Hotels.Remove(hotel);
         await context.SaveChangesAsync();
 
@@ -118,7 +119,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             .FirstOrDefaultAsync();
 
         return hotel is null
-            ? Result<GetHotelDto>.NotFound()
+            ? Result<GetHotelDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.HotelNotFound(id)))
             : Result<GetHotelDto>.Success(hotel);
     }
 
@@ -130,7 +131,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             .FirstOrDefaultAsync();
 
         return country is null
-            ? Result<GetCountryDto>.Failure(new Error(ErrorCodes.NotFound, $"Country with id {id} not found"))
+            ? Result<GetCountryDto>.Failure(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)))
             : Result<GetCountryDto>.Success(country);
     }
 }

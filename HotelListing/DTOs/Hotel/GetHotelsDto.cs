@@ -1,11 +1,11 @@
 ﻿namespace HotelListing.DTOs.Hotel;
 
-public record GetHotelsDto
-(
+public record GetHotelsDto(
     int Id,
     string Name,
     string Address,
     double Rating,
     int CountryId,
-    string CountryName
+    string CountryName,
+    decimal PerNightRate
 );

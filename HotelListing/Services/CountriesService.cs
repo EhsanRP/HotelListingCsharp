@@ -33,8 +33,7 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             //Checking if paylaod ID Matches DTO ID
             if (id != countryDto.Id)
             {
-                return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation,
-                    "Id route value does not match payload Id"));
+                return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation, ErrorDescriptions.IdRouteValueMismatch()));
             }
 
             //Checking if the Corresponding Country Exists in Database
@@ -48,8 +47,7 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             var targetNameExistCheck = await CountryExistsAsync(countryDto.Name);
             if (!targetNameExistCheck.IsSuccess)
             {
-                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict,
-                    $"Country with Name= {countryDto.Name} Already Exists"));
+                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
             }
 
             var country = mapper.Map<Country>(countryDto);
@@ -73,8 +71,7 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             var exists = await CountryExistsAsync(countryDto.Name);
             if (!exists.IsSuccess)
             {
-                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict,
-                    $"Country with name {countryDto.Name} already exists"));
+                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
             }
 
             var country = mapper.Map<Country>(countryDto);
@@ -97,7 +94,7 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
         var countryExists = await CountryExistsAsync(id);
         if (!countryExists.IsSuccess)
         {
-            return Result.NotFound(new Error(ErrorCodes.NotFound, $"Country with Id= {id} not found"));
+            return Result.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)));
         }
     
         var country = mapper.Map<Country>(countryExists.Value!);
@@ -115,14 +112,14 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             .ProjectTo<GetCountryDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
         return country is null
-            ? Result<GetCountryDto>.Failure(new Error(ErrorCodes.NotFound, $"Country with id {id} not found"))
+            ? Result<GetCountryDto>.Failure(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)))
             : Result<GetCountryDto>.Success(country);
     }
 
     private async Task<Result> CountryExistsAsync(string name)
     {
         return await context.Countries.AnyAsync(c => c.Name.ToLower().Trim() == name.ToLower().Trim())
-            ? Result.Failure()
+            ? Result.Failure(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(name)))
             : Result.Success();
     }
     

@@ -1,7 +1,6 @@
 using HotelListing.Data;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers;
@@ -55,5 +54,6 @@ public class HotelsController(IHotelsService hotelsService) : BaseApiController
         var result = await hotelsService.DeleteHotelAsync(id);
         return ToActionResult(result);
     }
+
     
 }

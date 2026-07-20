@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("HotelListingDbConnectionString");
 builder.Services.AddDbContext<HotelListingDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
@@ -56,11 +57,13 @@ builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IHotelsService, HotelsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<HotelMappingProfile>();
     config.AddProfile<CountryMappingProfile>();
+    config.AddProfile<BookingMappingProfile>();
 });
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -68,6 +71,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -78,6 +83,12 @@ app.MapGroup("api/defaultauth").MapIdentityApi<ApplicationUser>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    // app.UseSwaggerUI(config =>
+    // {
+    //     config.SwaggerEndpoint("/swagger/v1/swagger.json", "HotelListing API V1");
+    // });
 }
 
 app.UseHttpsRedirection();
