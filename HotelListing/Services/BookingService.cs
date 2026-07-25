@@ -163,19 +163,6 @@ public class BookingService(
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation, ErrorDescriptions.LoginRequired()));
         }
 
-        var nights = createBookingDto.CheckOut.DayNumber - createBookingDto.CheckIn.DayNumber;
-        if (nights <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.BookingDurationInvalid()));
-        }
-
-        if (createBookingDto.Guests <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.GuestsCountInvalid(createBookingDto.Guests)));
-        }
-
         if (hotelId != createBookingDto.HotelId)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
@@ -201,7 +188,7 @@ public class BookingService(
                 ErrorDescriptions.OverLappingBookings()));
         }
 
-        var totalPrice = hotel.Value!.PerNightRate * nights;
+        var totalPrice = hotel.Value!.PerNightRate * (createBookingDto.CheckOut.DayNumber -  createBookingDto.CheckIn.DayNumber);
         var booking = new Booking
         {
             HotelId = createBookingDto.HotelId,
