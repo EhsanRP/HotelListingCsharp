@@ -183,29 +183,18 @@ public class BookingService(
                 ErrorDescriptions.HotelNotFound(hotelId)));
         }
 
-        var overlaps = await context.Bookings.AnyAsync(b =>
-            b.Hotel!.Id == createBookingDto.HotelId
-            && b.StatusEnum != BookingStatusEnum.Cancelled
-            && createBookingDto.CheckIn < b.CheckOut
-            && createBookingDto.CheckOut > b.CheckOut
-            && b.UserId == userId);
+        var overlaps = await IsOverLap(hotelId,userId, createBookingDto.CheckIn, createBookingDto.CheckOut);
         if (overlaps)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
                 ErrorDescriptions.OverLappingBookings()));
         }
 
-        var totalPrice = hotel.Value!.PerNightRate * (createBookingDto.CheckOut.DayNumber -  createBookingDto.CheckIn.DayNumber);
-        var booking = new Booking
-        {
-            HotelId = createBookingDto.HotelId,
-            UserId = userId,
-            CheckIn = createBookingDto.CheckIn,
-            CheckOut = createBookingDto.CheckOut,
-            Guests = createBookingDto.Guests,
-            TotalPrice = totalPrice,
-            StatusEnum = BookingStatusEnum.Pending
-        };
+        var totalPrice = hotel.Value!.PerNightRate *
+                         (createBookingDto.CheckOut.DayNumber - createBookingDto.CheckIn.DayNumber);
+        var booking = mapper.Map<Booking>(createBookingDto);
+        booking.UserId = userId;
+        booking.TotalPrice = totalPrice;
 
         await context.Bookings.AddAsync(booking);
         await context.SaveChangesAsync();
@@ -236,12 +225,7 @@ public class BookingService(
                 ErrorDescriptions.IdRouteValueMismatch()));
         }
 
-        var overlaps = await context.Bookings.AnyAsync(b =>
-            b.Hotel!.Id == updateBookingDto.HotelId
-            && b.StatusEnum != BookingStatusEnum.Cancelled
-            && updateBookingDto.CheckIn < b.CheckOut
-            && updateBookingDto.CheckOut > b.CheckOut
-            && b.UserId == userId);
+        var overlaps = await IsOverLap(hotelId,userId, updateBookingDto.CheckIn, updateBookingDto.CheckOut);
         if (overlaps)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
@@ -285,5 +269,15 @@ public class BookingService(
         return hotel is null
             ? Result<GetHotelDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.HotelNotFound(hotelId)))
             : Result<GetHotelDto>.Success(hotel);
+    }
+
+    private async Task<bool> IsOverLap(int hotelId, string userId, DateOnly checkin, DateOnly checkout)
+    {
+        return await context.Bookings.AnyAsync(b =>
+            b.Hotel!.Id == hotelId
+            && b.StatusEnum != BookingStatusEnum.Cancelled
+            && checkin < b.CheckOut
+            && checkout > b.CheckOut
+            && b.UserId == userId);
     }
 }
