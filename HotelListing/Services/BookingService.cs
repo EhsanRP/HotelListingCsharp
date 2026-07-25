@@ -20,12 +20,7 @@ public class BookingService(
     public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAdminAsync(int hotelId)
     {
         var userId = usersService.GetUserId;
-        var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
 
-        if (!isHotelAdminUser)
-        {
-            return Result<IEnumerable<GetBookingDto>>.Failure(new Error(ErrorCodes.Forbid, ErrorDescriptions.AccessDenied()));
-        }
         var hotelExists = await HotelExists(hotelId);
         if (!hotelExists.IsSuccess)
         {
@@ -112,12 +107,6 @@ public class BookingService(
     public async Task<Result<GetBookingDto>> AdminCancelBookingAsync(int hotelId, int bookingId)
     {
         var userId = usersService.GetUserId;
-        var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
-
-        if (!isHotelAdminUser)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Forbid, ErrorDescriptions.AccessDenied()));
-        }
 
         var booking = await context.Bookings
             .Include(b => b.Hotel)
@@ -143,12 +132,7 @@ public class BookingService(
     public async Task<Result<GetBookingDto>> AdminConfirmBookingAsync(int hotelId, int bookingId)
     {
         var userId = usersService.GetUserId;
-        var isHotelAdminUser = await context.HotelAdmins.AnyAsync(q => q.UserId == userId && q.HotelId == hotelId);
 
-        if (!isHotelAdminUser)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Forbid, ErrorDescriptions.AccessDenied()));
-        }
         var booking = await context.Bookings
             .Include(b => b.Hotel)
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.HotelId == hotelId);
