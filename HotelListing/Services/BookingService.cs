@@ -34,7 +34,9 @@ public class BookingService(
             .ProjectTo<GetBookingDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
-        return Result<IEnumerable<GetBookingDto>>.Success(bookings);    }
+        return Result<IEnumerable<GetBookingDto>>.Success(bookings);
+    }
+
     public async Task<Result<IEnumerable<GetBookingDto>>> GetBookingsForHotelAsync(int hotelId)
     {
         var userId = usersService.GetUserId;
@@ -92,7 +94,8 @@ public class BookingService(
 
         if (booking.StatusEnum == BookingStatusEnum.Cancelled)
         {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.BookingAlreadyCancelled()));
+            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
+                ErrorDescriptions.BookingAlreadyCancelled()));
         }
 
         booking.StatusEnum = BookingStatusEnum.Cancelled;
@@ -113,12 +116,14 @@ public class BookingService(
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.HotelId == hotelId);
         if (booking is null)
         {
-            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.BookingNotFound(bookingId)));
+            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.BookingNotFound(bookingId)));
         }
-        
+
         if (booking.StatusEnum == BookingStatusEnum.Cancelled)
         {
-            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.BookingAlreadyCancelled()));
+            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.BookingAlreadyCancelled()));
         }
 
         booking.StatusEnum = BookingStatusEnum.Cancelled;
@@ -138,12 +143,14 @@ public class BookingService(
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.HotelId == hotelId);
         if (booking is null)
         {
-            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.BookingNotFound(bookingId)));
+            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.BookingNotFound(bookingId)));
         }
-        
+
         if (booking.StatusEnum == BookingStatusEnum.Cancelled)
         {
-            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.BookingAlreadyCancelled()));
+            return Result<GetBookingDto>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.BookingAlreadyCancelled()));
         }
 
         booking.StatusEnum = BookingStatusEnum.Confirmed;
@@ -161,19 +168,6 @@ public class BookingService(
         if (string.IsNullOrEmpty(userId))
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation, ErrorDescriptions.LoginRequired()));
-        }
-
-        var nights = createBookingDto.CheckOut.DayNumber - createBookingDto.CheckIn.DayNumber;
-        if (nights <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.BookingDurationInvalid()));
-        }
-
-        if (createBookingDto.Guests <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.GuestsCountInvalid(createBookingDto.Guests)));
         }
 
         if (hotelId != createBookingDto.HotelId)
@@ -201,7 +195,8 @@ public class BookingService(
                 ErrorDescriptions.OverLappingBookings()));
         }
 
-        var totalPrice = hotel.Value!.PerNightRate * nights;
+        var totalPrice = hotel.Value!.PerNightRate *
+                         (createBookingDto.CheckOut.DayNumber - createBookingDto.CheckIn.DayNumber);
         var booking = new Booking
         {
             HotelId = createBookingDto.HotelId,
@@ -229,7 +224,7 @@ public class BookingService(
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation, ErrorDescriptions.LoginRequired()));
         }
-        
+
         if (bookingId != updateBookingDto.Id)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
@@ -241,20 +236,6 @@ public class BookingService(
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
                 ErrorDescriptions.IdRouteValueMismatch()));
         }
-
-        var nights = updateBookingDto.CheckOut.DayNumber - updateBookingDto.CheckIn.DayNumber;
-        if (nights <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.BookingDurationInvalid()));
-        }
-
-        if (updateBookingDto.Guests <= 0)
-        {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Validation,
-                ErrorDescriptions.GuestsCountInvalid(updateBookingDto.Guests)));
-        }
-
 
         var overlaps = await context.Bookings.AnyAsync(b =>
             b.Hotel!.Id == updateBookingDto.HotelId
@@ -280,9 +261,11 @@ public class BookingService(
 
         if (booking.StatusEnum == BookingStatusEnum.Cancelled)
         {
-            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.BookingAlreadyCancelled()));
+            return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
+                ErrorDescriptions.BookingAlreadyCancelled()));
         }
 
+        var nights = updateBookingDto.CheckOut.DayNumber - updateBookingDto.CheckIn.DayNumber;
         var perNightRate = booking.Hotel!.PerNightRate;
         booking = mapper.Map(updateBookingDto, booking);
         booking.TotalPrice = perNightRate * nights;
