@@ -195,8 +195,7 @@ public class BookingService(
                 ErrorDescriptions.OverLappingBookings()));
         }
 
-        var totalPrice = hotel.Value!.PerNightRate *
-                         (createBookingDto.CheckOut.DayNumber - createBookingDto.CheckIn.DayNumber);
+        var totalPrice = hotel.Value!.PerNightRate * (createBookingDto.CheckOut.DayNumber -  createBookingDto.CheckIn.DayNumber);
         var booking = new Booking
         {
             HotelId = createBookingDto.HotelId,
