@@ -1,9 +1,20 @@
-﻿namespace HotelListing.DTOs.Booking;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class CreateBookingDto
+namespace HotelListing.DTOs.Booking;
+
+public record CreateBookingDto(
+    [Required] int HotelId,
+    [Required, Range(minimum: 1, maximum: 10)]
+    int Guests,
+    DateOnly CheckIn,
+    DateOnly CheckOut
+) : IValidatableObject
 {
-    public int HotelId { get; set; }
-    public DateOnly CheckIn { get; set; }
-    public DateOnly CheckOut { get; set; }
-    public int Guests { get; set; }
+public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+{
+    if (CheckOut <= CheckIn)
+    {
+        yield return new ValidationResult("CheckOut must be after CheckIn", [nameof(CheckOut), nameof(CheckIn)]);
+    }
+}
 }
