@@ -20,6 +20,7 @@ var connectionString = builder.Configuration.GetConnectionString("HotelListingDb
 builder.Services.AddDbContext<HotelListingDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
 
+//API Security Section
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<HotelListingDbContext>();
@@ -50,26 +51,27 @@ builder.Services.AddAuthentication(options =>
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(AuthenticationDefaults.ApiKeyScheme, _ => { });
 builder.Services.AddAuthorization();
 
-// builder.Services.AddIdentityCore<ApplicationUser>()
-//     .AddRoles<IdentityRole>()
-//     .AddDefaultTokenProviders();
-
+//Registering Services
 builder.Services.AddScoped<ICountriesService, CountriesService>();
 builder.Services.AddScoped<IHotelsService, HotelsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
+//Can use cfg => {}, Assembly.GetExecutingAssembly() instead of listing all the mappers
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<HotelMappingProfile>();
     config.AddProfile<CountryMappingProfile>();
     config.AddProfile<BookingMappingProfile>();
 });
+
+//Ignoring Cycles for controllers JSON parser
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
@@ -78,7 +80,6 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.MapGroup("api/defaultauth").MapIdentityApi<ApplicationUser>();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
