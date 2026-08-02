@@ -2,10 +2,10 @@
 using System.Security.Claims;
 using System.Text;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Results;
 using HotelListing.Data;
 using HotelListing.DTOs.Auth;
 using HotelListing.Interfaces;
-using HotelListing.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 

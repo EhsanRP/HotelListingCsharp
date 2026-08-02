@@ -1,5 +1,5 @@
-﻿using HotelListing.DTOs.Booking;
-using HotelListing.Results;
+﻿using HotelListing.Common.Results;
+using HotelListing.DTOs.Booking;
 
 namespace HotelListing.Interfaces;
 

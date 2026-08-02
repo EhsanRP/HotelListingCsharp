@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Results;
 using HotelListing.Constants;
 using HotelListing.Data;
 using HotelListing.Data.Enums;
 using HotelListing.DTOs.Booking;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;
-using HotelListing.Results;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Services;
