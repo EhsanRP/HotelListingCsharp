@@ -2,18 +2,20 @@
 using System.Security.Claims;
 using System.Text;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Models;
 using HotelListing.Common.Results;
 using HotelListing.Data;
 using HotelListing.DTOs.Auth;
 using HotelListing.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HotelListing.Services;
 
 public class UsersService(
     UserManager<ApplicationUser> userManager,
-    IConfiguration configuration,
+    IOptions<JwtSettings> jwtOptions,
     IHttpContextAccessor httpContextAccessor,
     HotelListingDbContext context) : IUsersService
 {
@@ -103,7 +105,7 @@ public class UsersService(
         claims = claims.Union(roleClaims).ToList();
 
         //set JWT key credentials
-        var jwtKey = configuration["JwtSettings:Key"];
+        var jwtKey = jwtOptions.Value.Key;
         if (jwtKey == null)
         {
             throw new Exception("Some Programmer Fucked the AppSettings UP!");
@@ -114,11 +116,11 @@ public class UsersService(
 
         //create encoded token
         var token = new JwtSecurityToken(
-            issuer: configuration["JwtSettings:Issuer"],
-            audience: configuration["JwtSettings:Audience"],
+            issuer: jwtOptions.Value.Issuer,
+            audience: jwtOptions.Value.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
-                Convert.ToInt32(configuration["JwtSettings:DurationInMinutes"])
+                Convert.ToInt32(jwtOptions.Value.Key)
             ),
             signingCredentials: credentials
         );
