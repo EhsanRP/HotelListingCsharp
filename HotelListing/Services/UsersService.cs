@@ -36,7 +36,7 @@ public class UsersService(
 
         await userManager.AddToRoleAsync(user, registerUserDto.Role);
 
-        if (registerUserDto.Role == UserRoles.HotelAdmin)
+        if (registerUserDto.Role == UserRoleNames.HotelAdmin)
         {
             {
                 var hotelAdmin = context.HotelAdmins.Add(new HotelAdmin()

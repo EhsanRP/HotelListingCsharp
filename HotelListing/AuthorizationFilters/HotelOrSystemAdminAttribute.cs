@@ -24,7 +24,7 @@ public class HotelOrSystemAdminFilter(HotelListingDbContext dbContext) : IAsyncA
         }
 
         //If it's a system admin allow immediately
-        if (httpUser!.IsInRole(UserRoles.Administrator))
+        if (httpUser!.IsInRole(UserRoleNames.Administrator))
         {
             return;
         }

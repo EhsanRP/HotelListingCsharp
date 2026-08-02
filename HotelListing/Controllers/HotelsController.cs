@@ -31,7 +31,7 @@ public class HotelsController(IHotelsService hotelsService) : BaseApiController
     // PUT: api/Hotels/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    [Authorize(Roles = $"{UserRoles.Administrator}")]
+    [Authorize(Roles = $"{UserRoleNames.Administrator}")]
     public async Task<ActionResult<GetHotelDto>> PutHotel(int id, UpdateHotelDto hotelDto)
     {
         var updatedHotelDto = await hotelsService.UpdateHotelAsync(id, hotelDto);
@@ -42,7 +42,7 @@ public class HotelsController(IHotelsService hotelsService) : BaseApiController
     // POST: api/Hotels
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    [Authorize(Roles = $"{UserRoles.Administrator}")]
+    [Authorize(Roles = $"{UserRoleNames.Administrator}")]
     public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDto hotelDto)
     {
         var result = await hotelsService.CreateHotelAsync(hotelDto);
@@ -53,7 +53,7 @@ public class HotelsController(IHotelsService hotelsService) : BaseApiController
 
     // DELETE: api/Hotels/5
     [HttpDelete("{id}")]
-    [Authorize(Roles = $"{UserRoles.Administrator}")]
+    [Authorize(Roles = $"{UserRoleNames.Administrator}")]
     public async Task<IActionResult> DeleteHotel(int id)
     {
         var result = await hotelsService.DeleteHotelAsync(id);

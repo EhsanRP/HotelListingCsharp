@@ -14,7 +14,7 @@ public class RegisterUserDto : IValidatableObject
     public int? AssociatedHotelId { get; set; } = 0;
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Role == UserRoles.HotelAdmin && AssociatedHotelId.GetValueOrDefault() < 1)
+        if (Role == UserRoleNames.HotelAdmin && AssociatedHotelId.GetValueOrDefault() < 1)
         {
             yield return new ValidationResult("Please provide a valid hotel Id",[nameof(AssociatedHotelId)]);
         }
