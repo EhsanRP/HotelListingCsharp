@@ -9,8 +9,8 @@ public class BookingMappingProfile : Profile
     public BookingMappingProfile()
     {
         CreateMap<Booking, GetBookingDto>()
-            .ForMember(dest => dest.HotelName, config => config.MapFrom(src => src.Hotel!.Name))
-            .ForMember(dest => dest.Status, config => config.MapFrom(src => src.StatusEnum.ToString()));
+            .ForMember(dest => dest.HotelName, config => config.MapFrom(src => src.Hotel!.Name));
+            //.ForMember(dest => dest.Status, config => config.MapFrom(src => src.StatusEnum.ToString()));
         
         CreateMap<CreateBookingDto, Booking>()
             .ForMember(dest => dest.Id, config => config.Ignore())

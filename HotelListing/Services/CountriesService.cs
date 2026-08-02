@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using HotelListing.Common.Constants;
 using HotelListing.Constants;
 using HotelListing.Data;
 using HotelListing.DTOs.Country;

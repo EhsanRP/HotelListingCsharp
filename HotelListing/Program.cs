@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
-using HotelListing.Constants;
+using HotelListing.Common.Constants;
 using HotelListing.Data;
 using HotelListing.Handlers;
 using HotelListing.Interfaces;

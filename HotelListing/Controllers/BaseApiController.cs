@@ -1,4 +1,4 @@
-﻿using HotelListing.Constants;
+﻿using HotelListing.Common.Constants;
 using HotelListing.Results;
 using Microsoft.AspNetCore.Mvc;
 

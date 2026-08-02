@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using HotelListing.Common.Constants;
 using HotelListing.Constants;
 using HotelListing.Data;
 using HotelListing.Data.Enums;
@@ -183,7 +184,7 @@ public class BookingService(
                 ErrorDescriptions.HotelNotFound(hotelId)));
         }
 
-        var overlaps = await IsOverLap(hotelId,userId, createBookingDto.CheckIn, createBookingDto.CheckOut);
+        var overlaps = await IsOverLap(hotelId, userId, createBookingDto.CheckIn, createBookingDto.CheckOut);
         if (overlaps)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
@@ -225,7 +226,7 @@ public class BookingService(
                 ErrorDescriptions.IdRouteValueMismatch()));
         }
 
-        var overlaps = await IsOverLap(hotelId,userId, updateBookingDto.CheckIn, updateBookingDto.CheckOut);
+        var overlaps = await IsOverLap(hotelId, userId, updateBookingDto.CheckIn, updateBookingDto.CheckOut);
         if (overlaps)
         {
             return Result<GetBookingDto>.Failure(new Error(ErrorCodes.Conflict,
@@ -271,13 +272,23 @@ public class BookingService(
             : Result<GetHotelDto>.Success(hotel);
     }
 
-    private async Task<bool> IsOverLap(int hotelId, string userId, DateOnly checkin, DateOnly checkout)
+    private async Task<bool> IsOverLap(int hotelId, string userId, DateOnly checkin, DateOnly checkout,
+        int? bookingId = null)
     {
-        return await context.Bookings.AnyAsync(b =>
-            b.Hotel!.Id == hotelId
-            && b.StatusEnum != BookingStatusEnum.Cancelled
-            && checkin < b.CheckOut
-            && checkout > b.CheckOut
-            && b.UserId == userId);
+        var query = context.Bookings
+            .Where(b =>
+                b.Hotel!.Id == hotelId
+                && b.StatusEnum != BookingStatusEnum.Cancelled
+                && checkin < b.CheckOut
+                && checkout > b.CheckOut
+                && b.UserId == userId)
+            .AsQueryable();
+
+        if (bookingId.HasValue)
+        {
+            query = query.Where(q => q.Id != bookingId.Value);
+        }
+
+        return await query.AnyAsync();
     }
 }

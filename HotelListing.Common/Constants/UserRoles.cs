@@ -1,4 +1,4 @@
-﻿namespace HotelListing.Constants;
+﻿namespace HotelListing.Common.Constants;
 
 public static class UserRoles
 {

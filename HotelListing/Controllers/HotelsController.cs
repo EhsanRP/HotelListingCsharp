@@ -1,4 +1,4 @@
-using HotelListing.Constants;
+using HotelListing.Common.Constants;
 using HotelListing.Data;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;

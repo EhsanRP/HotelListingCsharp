@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using HotelListing.Constants;
+using HotelListing.Common.Constants;
 using HotelListing.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using HotelListing.Constants;
+using HotelListing.Common.Constants;
 using HotelListing.Data;
 using HotelListing.DTOs.Auth;
 using HotelListing.Interfaces;
@@ -14,7 +14,8 @@ namespace HotelListing.Services;
 public class UsersService(
     UserManager<ApplicationUser> userManager,
     IConfiguration configuration,
-    IHttpContextAccessor httpContextAccessor) : IUsersService
+    IHttpContextAccessor httpContextAccessor,
+    HotelListingDbContext context) : IUsersService
 {
     public async Task<Result<RegisteredUserDto>> RegisterUserAsync(RegisterUserDto registerUserDto)
     {
@@ -34,6 +35,18 @@ public class UsersService(
         }
 
         await userManager.AddToRoleAsync(user, registerUserDto.Role);
+
+        if (registerUserDto.Role == UserRoles.HotelAdmin)
+        {
+            {
+                var hotelAdmin = context.HotelAdmins.Add(new HotelAdmin()
+                {
+                    UserId = user.Id,
+                    HotelId = registerUserDto.AssociatedHotelId.GetValueOrDefault()
+                });
+                await context.SaveChangesAsync();
+            }
+        }
 
         var registeredUser = new RegisteredUserDto
         {
@@ -66,7 +79,7 @@ public class UsersService(
 
         return Result<string>.Success(token);
     }
-    
+
     public string GetUserId => httpContextAccessor?
         .HttpContext?
         .User?
@@ -113,6 +126,4 @@ public class UsersService(
         //return token value
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
-    
 }

@@ -1,5 +1,4 @@
 ﻿using HotelListing.AuthorizationFilters;
-using HotelListing.Constants;
 using HotelListing.DTOs.Booking;
 using HotelListing.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +11,7 @@ namespace HotelListing.Controllers;
 [Authorize]
 public class HotelBookingsController(IBookingService bookingService) : BaseApiController
 {
-    [HttpGet("/admin")]
+    [HttpGet("admin")]
     [HotelOrSystemAdmin]
     public async Task<ActionResult<IEnumerable<GetBookingDto>>> GetBookings([FromRoute] int hotelId)
     {
