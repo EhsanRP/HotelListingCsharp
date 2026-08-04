@@ -68,6 +68,7 @@ builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
 //Can use cfg => {}, Assembly.GetExecutingAssembly() instead of listing all the mappers
+//Can use cfg => {}, typeOf(MappingProfile).Assembly instead of listing all the mappers for separated projects and all mappers in a single file
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<HotelMappingProfile>();
