@@ -1,7 +1,7 @@
+using HotelListing.Application.DTOs.Hotel;
+using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
 using HotelListing.Domain;
-using HotelListing.DTOs.Hotel;
-using HotelListing.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

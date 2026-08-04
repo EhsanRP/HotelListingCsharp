@@ -1,5 +1,5 @@
-using HotelListing.DTOs.Country;
-using HotelListing.Interfaces;
+using HotelListing.Application.DTOs.Country;
+using HotelListing.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using HotelListing.DTOs.Auth;
-using HotelListing.Interfaces;
+using HotelListing.Application.DTOs.Auth;
+using HotelListing.Application.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 

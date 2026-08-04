@@ -1,6 +1,6 @@
-﻿using HotelListing.AuthorizationFilters;
-using HotelListing.DTOs.Booking;
-using HotelListing.Interfaces;
+﻿using HotelListing.Application.DTOs.Booking;
+using HotelListing.Application.Interfaces;
+using HotelListing.AuthorizationFilters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

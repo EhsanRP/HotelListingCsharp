@@ -1,13 +1,13 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using HotelListing.Application.Interfaces;
+using HotelListing.Application.MappingProfiles;
+using HotelListing.Application.Services;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Models;
 using HotelListing.Domain;
 using HotelListing.Handlers;
-using HotelListing.Interfaces;
-using HotelListing.MappingProfiles;
-using HotelListing.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
