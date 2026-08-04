@@ -2,8 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Results;
-using HotelListing.Constants;
-using HotelListing.Data;
+using HotelListing.Domain;
 using HotelListing.DTOs.Country;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;

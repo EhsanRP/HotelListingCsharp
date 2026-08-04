@@ -1,4 +1,4 @@
-﻿using HotelListing.Data;
+﻿using HotelListing.Domain;
 using HotelListing.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

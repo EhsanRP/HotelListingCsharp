@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Models;
-using HotelListing.Data;
+using HotelListing.Domain;
 using HotelListing.Handlers;
 using HotelListing.Interfaces;
 using HotelListing.MappingProfiles;

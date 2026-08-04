@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using HotelListing.Common.Constants;
-using HotelListing.Data;
+using HotelListing.Domain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;

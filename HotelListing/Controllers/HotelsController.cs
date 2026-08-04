@@ -1,5 +1,5 @@
 using HotelListing.Common.Constants;
-using HotelListing.Data;
+using HotelListing.Domain;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;
 using Microsoft.AspNetCore.Authorization;

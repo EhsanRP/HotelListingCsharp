@@ -1,4 +1,4 @@
-﻿namespace HotelListing.Data;
+﻿namespace HotelListing.Domain;
 
 public class Hotel
 {

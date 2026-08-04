@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace HotelListing.Migrations
+namespace HotelListing.Domain.Migrations
 {
     /// <inheritdoc />
     public partial class AddedRoleSystem : Migration

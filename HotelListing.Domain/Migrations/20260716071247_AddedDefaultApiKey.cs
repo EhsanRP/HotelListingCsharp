@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace HotelListing.Migrations
+namespace HotelListing.Domain.Migrations
 {
     /// <inheritdoc />
     public partial class AddedDefaultApiKey : Migration

@@ -2,9 +2,8 @@
 using AutoMapper.QueryableExtensions;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Results;
-using HotelListing.Constants;
-using HotelListing.Data;
-using HotelListing.Data.Enums;
+using HotelListing.Domain;
+using HotelListing.Domain.Enums;
 using HotelListing.DTOs.Booking;
 using HotelListing.DTOs.Hotel;
 using HotelListing.Interfaces;
