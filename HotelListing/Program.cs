@@ -5,7 +5,7 @@ using HotelListing.Application.Interfaces;
 using HotelListing.Application.MappingProfiles;
 using HotelListing.Application.Services;
 using HotelListing.Common.Constants;
-using HotelListing.Common.Models;
+using HotelListing.Common.Models.Config;
 using HotelListing.Domain;
 using HotelListing.Handlers;
 using Microsoft.AspNetCore.Authentication;
@@ -67,8 +67,8 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
-//Can use cfg => {}, Assembly.GetExecutingAssembly() instead of listing all the mappers
-//Can use cfg => {}, typeOf(MappingProfile).Assembly instead of listing all the mappers for separated projects and all mappers in a single file
+//Can use cfg => {}, Assembly.GetExecutingAssembly() instead of listing all the mappers -> Single project
+//Can use cfg => {}, typeOf(MappingProfile).Assembly instead of listing all the mappers for separated projects and all mappers in a single file -> Multiple projects with a single mapping class
 builder.Services.AddAutoMapper(config =>
 {
     config.AddProfile<HotelMappingProfile>();
