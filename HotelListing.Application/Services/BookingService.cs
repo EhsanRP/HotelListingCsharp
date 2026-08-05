@@ -4,11 +4,11 @@ using HotelListing.Application.DTOs.Booking;
 using HotelListing.Application.DTOs.Hotel;
 using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Models.Enums;
 using HotelListing.Common.Models.Extensions;
 using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
-using HotelListing.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Application.Services;
