@@ -4,7 +4,7 @@ namespace HotelListing.Common.Models.Paging;
 
 public class PaginationParameters
 {
-    private const int MaxPageSize = 50;
+    private const int MaxPageSize = 10;
     private int _pageSize = 10;
     
     [Range(1, int.MaxValue,ErrorMessage = "Page size must be greater than 0.")]

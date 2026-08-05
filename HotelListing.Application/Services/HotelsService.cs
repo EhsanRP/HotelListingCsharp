@@ -4,6 +4,8 @@ using HotelListing.Application.DTOs.Country;
 using HotelListing.Application.DTOs.Hotel;
 using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Models.Extensions;
+using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +14,14 @@ namespace HotelListing.Application.Services;
 
 public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHotelsService
 {
-    public async Task<Result<IEnumerable<GetHotelsDto>>> GetHotelsAsync()
+    public async Task<Result<PagedResult<GetHotelsDto>>> GetHotelsAsync(PaginationParameters paginationParameters)
     {
         var hotels = await context.Hotels
             .Include(h => h.Country)
             .ProjectTo<GetHotelsDto>(mapper.ConfigurationProvider)
-            .ToListAsync();
+            .ToPagedResultAsync(paginationParameters);
         
-        return Result<IEnumerable<GetHotelsDto>>.Success(hotels);
+        return Result<PagedResult<GetHotelsDto>>.Success(hotels);
     }
 
     public async Task<Result<GetHotelDto>> GetHotelAsync(int id)

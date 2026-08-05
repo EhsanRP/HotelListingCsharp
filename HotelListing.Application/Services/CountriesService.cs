@@ -3,6 +3,8 @@ using AutoMapper.QueryableExtensions;
 using HotelListing.Application.DTOs.Country;
 using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
+using HotelListing.Common.Models.Extensions;
+using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -11,13 +13,13 @@ namespace HotelListing.Application.Services;
 
 public class CountriesService(HotelListingDbContext context, IMapper mapper) : ICountriesService
 {
-    public async Task<Result<IEnumerable<GetCountriesDto>>> GetCountriesAsync()
+    public async Task<Result<PagedResult<GetCountriesDto>>> GetCountriesAsync(PaginationParameters paginationParameters)
     {
         var countries = await context.Countries
             .ProjectTo<GetCountriesDto>(mapper.ConfigurationProvider)
-            .ToListAsync();
+            .ToPagedResultAsync(paginationParameters);
 
-        return Result<IEnumerable<GetCountriesDto>>.Success(countries);
+        return Result<PagedResult<GetCountriesDto>>.Success(countries);
     }
 
     public async Task<Result<GetCountryDto>> GetCountryAsync(int id)
