@@ -122,7 +122,7 @@ public class UsersService(
             audience: jwtOptions.Value.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(
-                Convert.ToInt32(jwtOptions.Value.Key)
+                Convert.ToInt32(jwtOptions.Value.DurationInMinutes)
             ),
             signingCredentials: credentials
         );
