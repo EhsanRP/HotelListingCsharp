@@ -4,6 +4,7 @@ using HotelListing.Application.DTOs.Country;
 using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Models.Extensions;
+using HotelListing.Common.Models.Filtering;
 using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
@@ -13,9 +14,19 @@ namespace HotelListing.Application.Services;
 
 public class CountriesService(HotelListingDbContext context, IMapper mapper) : ICountriesService
 {
-    public async Task<Result<PagedResult<GetCountriesDto>>> GetCountriesAsync(PaginationParameters paginationParameters)
+    public async Task<Result<PagedResult<GetCountriesDto>>> GetCountriesAsync(
+        CountryFilterParameters filters,
+        PaginationParameters paginationParameters)
     {
-        var countries = await context.Countries
+        var query = context.Countries.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filters.SearchString))
+        {
+            var term = filters.SearchString.Trim();
+            query = query.Where(c => EF.Functions.Like(c.Name, $"%{term}%" )|| EF.Functions.Like(c.ShortName, $"%{term}%"));
+        }
+        
+        var countries = await query
             .ProjectTo<GetCountriesDto>(mapper.ConfigurationProvider)
             .ToPagedResultAsync(paginationParameters);
 
