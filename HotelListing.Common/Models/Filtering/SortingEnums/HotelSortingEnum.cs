@@ -1,4 +1,4 @@
-﻿namespace HotelListing.Common.Models.Filtering;
+﻿namespace HotelListing.Common.Models.Filtering.SortingEnums;
 
 public enum HotelSortingEnum
 {

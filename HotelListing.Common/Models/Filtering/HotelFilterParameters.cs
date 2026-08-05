@@ -1,4 +1,6 @@
-﻿namespace HotelListing.Common.Models.Filtering;
+﻿using HotelListing.Common.Models.Filtering.SortingEnums;
+
+namespace HotelListing.Common.Models.Filtering;
 
 public class HotelFilterParameters : BaseFilterParameters
 {

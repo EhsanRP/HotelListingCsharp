@@ -6,6 +6,7 @@ using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
 using HotelListing.Common.Models.Extensions;
 using HotelListing.Common.Models.Filtering;
+using HotelListing.Common.Models.Filtering.SortingEnums;
 using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
