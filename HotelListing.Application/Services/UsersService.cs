@@ -4,7 +4,7 @@ using System.Text;
 using HotelListing.Application.DTOs.Auth;
 using HotelListing.Application.Interfaces;
 using HotelListing.Common.Constants;
-using HotelListing.Common.Models;
+using HotelListing.Common.Models.Config;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
 using Microsoft.AspNetCore.Http;
