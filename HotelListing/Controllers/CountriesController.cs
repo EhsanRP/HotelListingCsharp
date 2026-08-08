@@ -1,8 +1,10 @@
 using HotelListing.Application.DTOs.Country;
 using HotelListing.Application.Interfaces;
+using HotelListing.Common.Constants;
 using HotelListing.Common.Models.Filtering;
 using HotelListing.Common.Models.Paging;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelListing.Controllers;
@@ -34,7 +36,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
     // PUT: api/Countries/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = UserRoleNames.Administrator)]
     public async Task<ActionResult<GetCountryDto>> PutCountry(int id, UpdateCountryDto countryDto)
     {
         var updatedCountry = await countriesService.UpdateCountryAsync(id, countryDto);
@@ -42,10 +44,21 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
         return ToActionResult(updatedCountry);
     }
 
+    [HttpPatch("{id}")]
+    [Authorize(Roles = UserRoleNames.Administrator)]
+    public async Task<ActionResult<GetCountryDto>> PatchCountry(
+        int id,
+        [FromBody] JsonPatchDocument<UpdateCountryDto> patchDocument)
+    {
+        var result = await countriesService.PatchCountryAsync(id, patchDocument);
+        return ToActionResult(result);
+    }
+    
+
     // POST: api/Countries
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = UserRoleNames.Administrator)]
     public async Task<ActionResult<CreateCountryDto>> PostCountry(CreateCountryDto countryDto)
     {
         var result = await countriesService.CreateCountryAsync(countryDto);

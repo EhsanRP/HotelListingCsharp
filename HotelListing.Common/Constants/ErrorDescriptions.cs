@@ -7,6 +7,7 @@ public class ErrorDescriptions
     public static string IdRouteValueMismatch() => "Id route value does not match payload Id";
     public static string LoginRequired() => "Please login to perform this action";
     public static string AccessDenied() => "You don't have access to do this action";
+    public static string PatchDocumentMissing() => "Patch document is required";
     
     //Hotel
     public static string HotelNotFound(int id) => $"Hotel with id={id} not found";

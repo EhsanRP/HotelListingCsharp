@@ -8,6 +8,7 @@ using HotelListing.Common.Models.Filtering;
 using HotelListing.Common.Models.Paging;
 using HotelListing.Common.Results;
 using HotelListing.Domain;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelListing.Application.Services;
@@ -116,6 +117,43 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
         await context.SaveChangesAsync();
 
         return Result.Success();
+    }
+
+    public async Task<Result<GetCountryDto>> PatchCountryAsync(int id, JsonPatchDocument<UpdateCountryDto> patchDocument)
+    {
+        if (patchDocument == null)
+        {
+            return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.BadRequest,
+                ErrorDescriptions.PatchDocumentMissing()));
+        }
+        
+        var country = await context.Countries.FindAsync(id);
+        if (country is null)
+        {
+            return Result<GetCountryDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)));
+        }
+
+        var countryDto = mapper.Map<UpdateCountryDto>(country);
+        patchDocument.ApplyTo(countryDto);
+
+        if (id != countryDto.Id)
+        {
+            return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation, ErrorDescriptions.IdRouteValueMismatch()));
+        }
+        
+        var duplicateExists = await CountryExistsAsync(countryDto.Name);
+        if (duplicateExists.IsSuccess)
+        {
+            return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
+        }
+
+        mapper.Map(countryDto, country);
+        await context.SaveChangesAsync();
+        
+        var result = mapper.Map<GetCountryDto>(country);
+
+        return Result<GetCountryDto>.Success(result);
+
     }
 
     private async Task<Result<GetCountryDto>> CountryExistsAsync(int id)
