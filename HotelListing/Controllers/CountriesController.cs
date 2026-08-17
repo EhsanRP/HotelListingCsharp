@@ -16,7 +16,7 @@ public class CountriesController(ICountriesService countriesService) : BaseApiCo
 {
     // GET: api/Countries
     [HttpGet]
-    public async Task<ActionResult<PagedResult<GetCountriesDto>>> GetCountries(
+    public async Task<ActionResult<IEnumerable<GetCountriesDto>>> GetCountries(
         [FromQuery] CountryFilterParameters filters,
         [FromQuery] PaginationParameters paginationParameters)
     {

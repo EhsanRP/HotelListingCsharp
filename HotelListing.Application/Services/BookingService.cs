@@ -70,6 +70,7 @@ public class BookingService(
     {
         var booking = await context.Bookings
             .Include(b => b.Hotel)
+            .AsNoTracking()
             .ProjectTo<GetBookingDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.HotelId == hotelId);
 
@@ -272,6 +273,7 @@ public class BookingService(
         var hotel = await context.Hotels
             .Where(h => h.Id == hotelId)
             .Include(h => h.Country)
+            .AsNoTracking()
             .ProjectTo<GetHotelDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 

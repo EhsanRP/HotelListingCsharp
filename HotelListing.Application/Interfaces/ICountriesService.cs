@@ -8,7 +8,7 @@ namespace HotelListing.Application.Interfaces;
 
 public interface ICountriesService
 {
-    Task<Result<PagedResult<GetCountriesDto>>> GetCountriesAsync(CountryFilterParameters filters,
+    Task<Result<IEnumerable<GetCountriesDto>>> GetCountriesAsync(CountryFilterParameters filters,
         PaginationParameters paginationParameters);
 
     Task<Result<GetCountryDto>> GetCountryAsync(int id);

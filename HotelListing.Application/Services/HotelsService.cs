@@ -27,7 +27,11 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
         if (filters.MinPrice.HasValue) query = query.Where(h => h.PerNightRate >= filters.MinPrice.Value);
         if (filters.MaxPrice.HasValue) query = query.Where(h => h.PerNightRate <= filters.MaxPrice.Value);
         if (!string.IsNullOrWhiteSpace(filters.Location))
-            query = query.Where(h => h.Address.Contains(filters.Location));
+        {
+            var location = filters.Location.Trim();
+            query = query.Where(h => EF.Functions.Like(h.Address, $"%{location}%"));
+        }
+
         if (!string.IsNullOrWhiteSpace(filters.SearchString))
         {
             var term = filters.SearchString.Trim();
@@ -51,6 +55,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
         var hotels = await query
             .Include(h => h.Country)
             .ProjectTo<GetHotelsDto>(mapper.ConfigurationProvider)
+            .AsNoTracking()
             .ToPagedResultAsync(paginationParameters);
 
         return Result<PagedResult<GetHotelsDto>>.Success(hotels);
@@ -150,6 +155,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
             .Where(h => h.Id == id)
             .Include(h => h.Country)
             .ProjectTo<GetHotelDto>(mapper.ConfigurationProvider)
+            .AsNoTracking()
             .FirstOrDefaultAsync();
 
         return hotel is null
@@ -162,6 +168,7 @@ public class HotelsService(HotelListingDbContext context, IMapper mapper) : IHot
         var country = await context.Countries
             .Where(c => c.Id == id)
             .ProjectTo<GetCountryDto>(mapper.ConfigurationProvider)
+            .AsNoTracking()
             .FirstOrDefaultAsync();
 
         return country is null

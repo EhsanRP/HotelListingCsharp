@@ -18,7 +18,24 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("HotelListingDbConnectionString");
-builder.Services.AddDbContext<HotelListingDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContextPool<HotelListingDbContext>(options =>
+    {
+        options.UseNpgsql(connectionString, sqlOptions =>
+        {
+            sqlOptions.CommandTimeout(30);
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(55),
+                errorCodesToAdd: null);
+        });
+
+        if (builder.Environment.IsDevelopment())
+        {
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
+        }
+    },
+    poolSize: 128);
 builder.Services.AddHttpContextAccessor();
 
 //API Security Section
@@ -66,6 +83,7 @@ builder.Services.AddScoped<IHotelsService, HotelsService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IApiKeyValidatorService, ApiKeyValidatorService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ICacheServices, CacheServices>();
 
 //Can use cfg => {}, Assembly.GetExecutingAssembly() instead of listing all the mappers -> Single project
 //Can use cfg => {}, typeOf(MappingProfile).Assembly instead of listing all the mappers for separated projects and all mappers in a single file -> Multiple projects with a single mapping class
@@ -85,6 +103,9 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Added in memory cache
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

@@ -10,28 +10,32 @@ using HotelListing.Common.Results;
 using HotelListing.Domain;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HotelListing.Application.Services;
 
-public class CountriesService(HotelListingDbContext context, IMapper mapper) : ICountriesService
+public class CountriesService(HotelListingDbContext context, IMapper mapper, ICacheServices cacheServices)
+    : ICountriesService
 {
-    public async Task<Result<PagedResult<GetCountriesDto>>> GetCountriesAsync(
+    public async Task<Result<IEnumerable<GetCountriesDto>>> GetCountriesAsync(
         CountryFilterParameters filters,
         PaginationParameters paginationParameters)
     {
+        var term = filters?.SearchString?.Trim().ToLowerInvariant() ?? string.Empty;
         var query = context.Countries.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(filters.SearchString))
+        if (!string.IsNullOrWhiteSpace(filters?.SearchString))
         {
-            var term = filters.SearchString.Trim();
-            query = query.Where(c => EF.Functions.Like(c.Name, $"%{term}%" )|| EF.Functions.Like(c.ShortName, $"%{term}%"));
+            query = query.Where(c =>
+                EF.Functions.Like(c.Name, $"%{term}%") || EF.Functions.Like(c.ShortName, $"%{term}%"));
         }
-        
-        var countries = await query
-            .ProjectTo<GetCountriesDto>(mapper.ConfigurationProvider)
-            .ToPagedResultAsync(paginationParameters);
 
-        return Result<PagedResult<GetCountriesDto>>.Success(countries);
+        var countries = await query
+            .AsNoTracking()
+            .ProjectTo<GetCountriesDto>(mapper.ConfigurationProvider)
+            .ToListAsync();
+
+        return Result<IEnumerable<GetCountriesDto>>.Success(countries);
     }
 
     public async Task<Result<GetCountryDto>> GetCountryAsync(int id)
@@ -47,27 +51,31 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             //Checking if paylaod ID Matches DTO ID
             if (id != countryDto.Id)
             {
-                return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation, ErrorDescriptions.IdRouteValueMismatch()));
+                return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation,
+                    ErrorDescriptions.IdRouteValueMismatch()));
             }
 
             //Checking if the Corresponding Country Exists in Database
-            var countryExistCheckResult = await CountryExistsAsync(id);
+            var countryExistCheckResult = await CountryExistsAsync(countryDto.Name);
             if (!countryExistCheckResult.IsSuccess)
             {
-                return countryExistCheckResult;
+                return Result<GetCountryDto>.NotFound(new Error(ErrorCodes.NotFound,
+                    ErrorDescriptions.CountryNotFound(countryDto.Name)));
             }
 
             //Checking if New Country Name Exists in Database
             var targetNameExistCheck = await CountryExistsAsync(countryDto.Name);
             if (!targetNameExistCheck.IsSuccess)
             {
-                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
+                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict,
+                    ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
             }
 
             var country = mapper.Map<Country>(countryDto);
 
             context.Countries.Update(country);
             await context.SaveChangesAsync();
+            cacheServices.InvalidateCountryCache(id);
 
             var updatedCountryDto = mapper.Map<GetCountryDto>(country);
             return Result<GetCountryDto>.Success(updatedCountryDto);
@@ -85,7 +93,8 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
             var exists = await CountryExistsAsync(countryDto.Name);
             if (!exists.IsSuccess)
             {
-                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
+                return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict,
+                    ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
             }
 
             var country = mapper.Map<Country>(countryDto);
@@ -110,27 +119,30 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
         {
             return Result.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)));
         }
-    
+
         var country = mapper.Map<Country>(countryExists.Value!);
-        
+
         context.Remove(country);
         await context.SaveChangesAsync();
+        cacheServices.InvalidateCountryCache(id);
 
         return Result.Success();
     }
 
-    public async Task<Result<GetCountryDto>> PatchCountryAsync(int id, JsonPatchDocument<UpdateCountryDto> patchDocument)
+    public async Task<Result<GetCountryDto>> PatchCountryAsync(int id,
+        JsonPatchDocument<UpdateCountryDto> patchDocument)
     {
         if (patchDocument == null)
         {
             return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.BadRequest,
                 ErrorDescriptions.PatchDocumentMissing()));
         }
-        
+
         var country = await context.Countries.FindAsync(id);
         if (country is null)
         {
-            return Result<GetCountryDto>.NotFound(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)));
+            return Result<GetCountryDto>.NotFound(new Error(ErrorCodes.NotFound,
+                ErrorDescriptions.CountryNotFound(id)));
         }
 
         var countryDto = mapper.Map<UpdateCountryDto>(country);
@@ -138,40 +150,69 @@ public class CountriesService(HotelListingDbContext context, IMapper mapper) : I
 
         if (id != countryDto.Id)
         {
-            return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation, ErrorDescriptions.IdRouteValueMismatch()));
+            return Result<GetCountryDto>.BadRequest(new Error(ErrorCodes.Validation,
+                ErrorDescriptions.IdRouteValueMismatch()));
         }
-        
+
         var duplicateExists = await CountryExistsAsync(countryDto.Name);
         if (duplicateExists.IsSuccess)
         {
-            return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict, ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
+            return Result<GetCountryDto>.Failure(new Error(ErrorCodes.Conflict,
+                ErrorDescriptions.CountryAlreadyExists(countryDto.Name)));
         }
 
         mapper.Map(countryDto, country);
         await context.SaveChangesAsync();
-        
+
         var result = mapper.Map<GetCountryDto>(country);
 
         return Result<GetCountryDto>.Success(result);
-
     }
 
     private async Task<Result<GetCountryDto>> CountryExistsAsync(int id)
     {
+        // 1. Try to get country from cache
+        var cachedCountry = cacheServices.GetCountryFromCacheById(id);
+
+        if (cachedCountry.IsSuccess && cachedCountry.Value is not null)
+        {
+            return Result<GetCountryDto>.Success(cachedCountry.Value);
+        }
+
+        // 2. Cache miss -> query database
         var country = await context.Countries
+            .AsNoTracking()
             .Where(c => c.Id == id)
             .ProjectTo<GetCountryDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
-        return country is null
-            ? Result<GetCountryDto>.Failure(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(id)))
-            : Result<GetCountryDto>.Success(country);
+
+        // 3. Country doesn't exist
+        if (country is null)
+        {
+            return Result<GetCountryDto>.NotFound(
+                new Error(
+                    ErrorCodes.NotFound,
+                    ErrorDescriptions.CountryNotFound(id)));
+        }
+
+        // 4. Store in cache
+        cacheServices.AddCountryToCacheById(country);
+
+        return Result<GetCountryDto>.Success(country);
     }
 
     private async Task<Result> CountryExistsAsync(string name)
     {
-        return await context.Countries.AnyAsync(c => c.Name.ToLower().Trim() == name.ToLower().Trim())
-            ? Result.Failure(new Error(ErrorCodes.NotFound, ErrorDescriptions.CountryNotFound(name)))
-            : Result.Success();
+        var normalizedName = name.ToLower().Trim();
+        var exists = await context.Countries
+            .AsNoTracking()
+            .AnyAsync(c => c.Name.ToLower() == normalizedName);
+
+        return exists
+            ? Result.Success()
+            : Result.Failure(
+                new Error(
+                    ErrorCodes.NotFound,
+                    ErrorDescriptions.CountryNotFound(name)));
     }
-    
 }
